@@ -1,1 +1,73 @@
+class CorridaFormula1:
+    def __init__(self, pilotos, voltas):
+        self.pilotos = pilotos
+        self.voltas = voltas
+        self.resultados_corrida = pd.DataFrame()  # DataFrame para armazenar resultados
+        self.info_pneus = pd.DataFrame()  # DataFrame para armazenar informações sobre os pneus
+    
+    def simular_corrida(self):
+        for volta in range(1, self.voltas + 1):
+            print(f"\nVolta {volta}:")
+            resultados_volta = {"Volta": volta}
 
+            for piloto in self.pilotos:
+                piloto.pneus_atuais = self.escolher_pneus(volta)
+
+                estrategia_piloto = self.definir_estrategia(piloto)
+                pit_stop_manager = PitStopManager(piloto, piloto.pneus_atuais, estrategia_piloto)
+
+                print(f"\n{piloto.nome} - Pneus: {piloto.pneus_atuais.tipo} ({piloto.pneus_atuais.cor})")
+                pit_stop_manager.realizar_pit_stop()
+
+                # Atualizar informações sobre os pneus
+                self.atualizar_info_pneus(piloto, volta)
+
+                pontos_deteccao_drs = self.definir_pontos_deteccao_drs(volta)
+                drs_manager = DRSManager(piloto)
+
+                for ponto_deteccao_drs in pontos_deteccao_drs:
+                    drs_manager.ativar_drs(ponto_deteccao_drs)  # Ativa o DRS durante a corrida
+
+                    # Simulação do tempo de volta com base nos pneus atuais
+                    tempo_volta_atualizado = piloto.tempo_volta * random.uniform(0.9, 1.1)
+                    print(f"Tempo de volta atualizado: {tempo_volta_atualizado:.2f} segundos")
+
+                    drs_manager.desativar_drs()  # Desativa o DRS no final da volta
+
+                    resultados_volta[f"{piloto.nome}_Volta{volta}"] = tempo_volta_atualizado
+
+            self.resultados_corrida = self.resultados_corrida.append(resultados_volta, ignore_index=True)
+
+    def definir_pontos_deteccao_drs(self, volta):
+        # Lógica para definir os pontos de detecção DRS com base na volta
+        return [f"Ponto{volta}A", f"Ponto{volta}B"]
+
+    def atualizar_info_pneus(self, piloto, volta):
+        info_pneu = {"Volta": volta, "Piloto": piloto.nome, "Tipo_Pneu": piloto.pneus_atuais.tipo, "Cor_Pneu": piloto.pneus_atuais.cor}
+        self.info_pneus = self.info_pneus.append(info_pneu, ignore_index=True)
+
+    def visualizar_resultados(self):
+        plt.figure(figsize=(10, 6))
+        for piloto in self.pilotos:
+            tempos_piloto = [col for col in self.resultados_corrida.columns if piloto.nome in col]
+            plt.plot(self.resultados_corrida["Volta"], self.resultados_corrida[tempos_piloto], label=piloto.nome)
+
+        plt.title("Desempenho dos Pilotos ao Longo da Corrida")
+        plt.xlabel("Volta")
+        plt.ylabel("Tempo de Volta (s)")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+        # Gráfico de tipo de pneu e contagem de voltas
+        plt.figure(figsize=(10, 6))
+        for piloto in self.pilotos:
+            info_piloto = self.info_pneus[self.info_pneus["Piloto"] == piloto.nome]
+            plt.plot(info_piloto["Volta"], info_piloto["Tipo_Pneu"], label=f"{piloto.nome} - {piloto.pneus_atuais.cor}")
+
+        plt.title("Tipo de Pneu e Contagem de Voltas")
+        plt.xlabel("Volta")
+        plt.ylabel("Tipo de Pneu")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
