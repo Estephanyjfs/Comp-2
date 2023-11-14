@@ -76,3 +76,10 @@ class PneuSelecionado:
         print(f"Tipo: Pneu {self.tipo} ({self.cor})")
         print(f"Desgaste Máximo: {self.desgaste_maximo}%")
         print(f"Durabilidade Máxima: {self.durabilidade_maxima} voltas")
+
+class Piloto:
+    def __init__(self, nome):
+        self.nome = nome
+        self.tempo_volta = random.uniform(80, 100)
+        self.pneus_atuais = None
+        self.drs_ativo = False
