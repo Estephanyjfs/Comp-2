@@ -1,0 +1,264 @@
+import time
+import random
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+class PneuFormula1:
+    def __init__(self, composto, durabilidade, temperatura_ideal):
+        self.composto = composto
+        self.durabilidade = durabilidade
+        self.temperatura_ideal = temperatura_ideal
+
+    def analisar(self):
+        print(f"Pneu de composto {self.composto} para Fórmula 1:")
+        print(f"Durabilidade: {self.durabilidade} voltas")
+        print(f"Temperatura Ideal: {self.temperatura_ideal}°C")
+
+class PneuSlick(PneuFormula1):
+    def __init__(self, composto, durabilidade, temperatura_ideal):
+        super().__init__(composto, durabilidade, temperatura_ideal)
+        self.__mapeamento_compostos = {
+            "C0": "C1 (do ano anterior)",
+            "C1": "Intermediário entre C1 e C2 (até 2022)",
+            "C2": "Menos duro que C1 e C2 (até 2022)",
+            "C3": "Pode servir como duro, médio ou macio",
+            "C4": "Aquecimento rápido",
+            "C5": "Menor desgaste, para circuitos de rua ou asfalto liso"
+        }
+        self.composto_equivalente = self.__mapeamento_compostos.get(composto, "Desconhecido")
+
+    def analisar(self):
+        super().analisar()
+        print(f"Composto Equivalente: {self.composto_equivalente}")
+
+class PneuChuva(PneuFormula1):
+    def __init__(self, composto, durabilidade, temperatura_ideal, ranhuras):
+        super().__init__(composto, durabilidade, temperatura_ideal)
+        self.ranhuras = ranhuras
+
+    def analisar(self):
+        super().analisar()
+        print(f"Tipo: Peneu para pista úmida/molhada")
+        print(f"Número de ranhuras:{self.ranhuras}")
+        print("Cracterísticase: Proporciona estabilidade em pista molhada e evita aquaplanagem.")
+        
+class PneuIntermediarioChuva(PneuFormula1):
+    def __init__(self, composto, durabilidade, temperatura_ideal, ranhuras_superficiais):
+        super().__init__(composto, durabilidade, temperatura_ideal)
+        self.ranhuras_superficiais = ranhuras_superficiais
+
+    def analisar(self):
+        super().analisar()
+        print(f"Tipo: Pneu Intermediário para Chuva")
+        print(f"Ranhuras Superficiais: {self.ranhuras_superficiais}")
+        print("Indicado para chuva fraca a moderada ou pista úmida sem chuva.")
+
+class PneuChuvaForte(PneuFormula1):
+    def __init__(self, composto, durabilidade, temperatura_ideal, maior_expulsao_agua):
+        super().__init__(composto, durabilidade, temperatura_ideal)
+        self.maior_expulsao_agua = maior_expulsao_agua
+
+    def analisar(self):
+        super().analisar()
+        print(f"Tipo: Pneu para Chuva Forte")
+        print(f"Maior Expulsão de Água: {self.maior_expulsao_agua}")
+        print("Indicado para precipitação extrema, oferece maior proteção contra aquaplanagem.")
+
+class PneuSelecionado:
+    def __init__(self, tipo, cor, desgaste_maximo, durabilidade_maxima):
+        self.tipo = tipo
+        self.cor = cor
+        self.desgaste_maximo = desgaste_maximo
+        self.durabilidade_maxima = durabilidade_maxima
+
+    def analisar(self):
+        print(f"Tipo: Pneu {self.tipo} ({self.cor})")
+        print(f"Desgaste Máximo: {self.desgaste_maximo}%")
+        print(f"Durabilidade Máxima: {self.durabilidade_maxima} voltas")
+
+
+class EstrategiaF1:
+    def __init__(self, piloto, rival_direto, competidores_grid, situacao_largada, pneus_iniciais):
+        self.piloto = piloto
+        self.rival_direto = rival_direto
+        self.competidores_grid = competidores_grid
+        self.situacao_largada = situacao_largada
+        self.pneus_iniciais = pneus_iniciais
+
+    def calcular_undercut(self):
+        vantagem_piloto = 2  # Exemplo: vantagem de 2 segundos após o pit stop
+        return self.piloto.tempo_volta - (self.rival_direto.tempo_volta - vantagem_piloto)
+
+    def calcular_overcut(self):
+        tempo_gasto_rivais = sum(competidor.tempo_volta for competidor in self.competidores_grid)
+        return tempo_gasto_rivais - self.piloto.tempo_volta
+
+    def melhor_estrategia(self):
+        if self.situacao_largada == "fundodoGrid" and self.piloto.pneus_atuais == "Duros":
+            return "Pneus Duros e Estratégia Overcut"
+        elif self.situacao_largada == "fundodoGrid":
+            return "Estratégia de Recuperação com Pneus Diferentes"
+        else:
+            if self.calcular_undercut() > self.calcular_overcut():
+                return "Estratégia Undercut"
+            else:
+                return "Estratégia Overcut"
+
+class PitStopManager:
+    def __init__(self, piloto, pneus, estrategia):
+        self.piloto = piloto
+        self.pneus = pneus
+        self.estrategia = estrategia
+
+    def realizar_pit_stop(self):
+        print("Iniciando pit stop para", self.piloto.nome)
+
+        # Etapas do pit stop
+        self.elevar_carro()
+        self.trocar_pneus()
+        self.abastecer()
+        self.baixar_carro()
+        self.finalizar_pit_stop()
+
+        print(f"Pit stop para {self.piloto.nome} concluído com sucesso!")
+
+    def elevar_carro(self):
+        print("Elevando o carro...")
+        time.sleep(1)  # Simulando o tempo de elevação
+
+    def trocar_pneus(self):
+        print("Troca de pneus em andamento...")
+        time.sleep(2)  # Simulando o tempo de troca de pneus
+
+    def abastecer(self):
+        print("Abastecendo o carro...")
+        time.sleep(1)  # Simulando o tempo de abastecimento
+
+    def baixar_carro(self):
+        print("Baixando o carro...")
+        time.sleep(1)  # Simulando o tempo de baixar o carro
+
+    def finalizar_pit_stop(self):
+        print("Pit stop finalizado!")
+
+class DRSManager:
+    def __init__(self, piloto):
+        self.piloto = piloto
+        self.drs_ativo = False
+        self.tempo_ultimo_uso_drs = 0  # Novo atributo para controlar o tempo desde o último uso do DRS
+
+    def ativar_drs(self, ponto_deteccao_drs):
+        if self.pode_usar_drs(ponto_deteccao_drs):
+            print(f"{self.piloto.nome} ativou o DRS na zona de detecção DRS {ponto_deteccao_drs}.")
+            self.drs_ativo = True
+            self.tempo_ultimo_uso_drs = time.time()  # Atualiza o tempo do último uso do DRS
+        else:
+            print(f"{self.piloto.nome} não pode ativar o DRS nesta zona de detecção DRS.")
+
+    def desativar_drs(self):
+        print(f"{self.piloto.nome} desativou o DRS.")
+        self.drs_ativo = False
+
+    def pode_usar_drs(self, ponto_deteccao_drs):
+        # Lógica para verificar se o piloto pode usar o DRS na zona de detecção DRS atual
+        return (
+            self.piloto.pneus_atuais is not None
+            and not self.piloto.drs_ativo
+            and (time.time() - self.tempo_ultimo_uso_drs)) > 1  # Tempo mínimo entre usos do DRS
+
+class Piloto:
+    def __init__(self, nome):
+        self.nome = nome
+        self.tempo_volta = random.uniform(80, 100)
+        self.pneus_atuais = None
+        self.drs_ativo = False
+
+
+# Atualização da simulação de uma corrida completa
+
+class CorridaFormula1:
+    def __init__(self, pilotos, voltas):
+        self.pilotos = pilotos
+        self.voltas = voltas
+        self.resultados_corrida = pd.DataFrame()  # DataFrame para armazenar resultados
+        self.info_pneus = pd.DataFrame()  # DataFrame para armazenar informações sobre os pneus
+    
+    def simular_corrida(self):
+        for volta in range(1, self.voltas + 1):
+            print(f"\nVolta {volta}:")
+            resultados_volta = {"Volta": volta}
+
+            for piloto in self.pilotos:
+                piloto.pneus_atuais = self.escolher_pneus(volta)
+
+                estrategia_piloto = self.definir_estrategia(piloto)
+                pit_stop_manager = PitStopManager(piloto, piloto.pneus_atuais, estrategia_piloto)
+
+                print(f"\n{piloto.nome} - Pneus: {piloto.pneus_atuais.tipo} ({piloto.pneus_atuais.cor})")
+                pit_stop_manager.realizar_pit_stop()
+
+                # Atualizar informações sobre os pneus
+                self.atualizar_info_pneus(piloto, volta)
+
+                pontos_deteccao_drs = self.definir_pontos_deteccao_drs(volta)
+                drs_manager = DRSManager(piloto)
+
+                for ponto_deteccao_drs in pontos_deteccao_drs:
+                    drs_manager.ativar_drs(ponto_deteccao_drs)  # Ativa o DRS durante a corrida
+
+                    # Simulação do tempo de volta com base nos pneus atuais
+                    tempo_volta_atualizado = piloto.tempo_volta * random.uniform(0.9, 1.1)
+                    print(f"Tempo de volta atualizado: {tempo_volta_atualizado:.2f} segundos")
+
+                    drs_manager.desativar_drs()  # Desativa o DRS no final da volta
+
+                    resultados_volta[f"{piloto.nome}_Volta{volta}"] = tempo_volta_atualizado
+
+            self.resultados_corrida = self.resultados_corrida.append(resultados_volta, ignore_index=True)
+
+    def definir_pontos_deteccao_drs(self, volta):
+        # Lógica para definir os pontos de detecção DRS com base na volta
+        return [f"Ponto{volta}A", f"Ponto{volta}B"]
+
+    def atualizar_info_pneus(self, piloto, volta):
+        info_pneu = {"Volta": volta, "Piloto": piloto.nome, "Tipo_Pneu": piloto.pneus_atuais.tipo, "Cor_Pneu": piloto.pneus_atuais.cor}
+        self.info_pneus = self.info_pneus.append(info_pneu, ignore_index=True)
+
+    def visualizar_resultados(self):
+        plt.figure(figsize=(10, 6))
+        for piloto in self.pilotos:
+            tempos_piloto = [col for col in self.resultados_corrida.columns if piloto.nome in col]
+            plt.plot(self.resultados_corrida["Volta"], self.resultados_corrida[tempos_piloto], label=piloto.nome)
+
+        plt.title("Desempenho dos Pilotos ao Longo da Corrida")
+        plt.xlabel("Volta")
+        plt.ylabel("Tempo de Volta (s)")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+        # Gráfico de tipo de pneu e contagem de voltas
+        plt.figure(figsize=(10, 6))
+        for piloto in self.pilotos:
+            info_piloto = self.info_pneus[self.info_pneus["Piloto"] == piloto.nome]
+            plt.plot(info_piloto["Volta"], info_piloto["Tipo_Pneu"], label=f"{piloto.nome} - {piloto.pneus_atuais.cor}")
+
+        plt.title("Tipo de Pneu e Contagem de Voltas")
+        plt.xlabel("Volta")
+        plt.ylabel("Tipo de Pneu")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+# Exemplo de uso
+
+if __name__ == '__main__':
+
+    piloto1 = Piloto(nome="Hamilton")
+    piloto2 = Piloto(nome="Verstappen")
+    pilotos_corrida = [piloto1, piloto2]
+
+    corrida = CorridaFormula1(pilotos_corrida, voltas=30)
+    corrida.simular_corrida()
+    corrida.visualizar_resultados()
