@@ -1,1 +1,95 @@
+import time
+import random
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+class EstrategiaF1:
+    def __init__(self, piloto, rival_direto, competidores_grid, situacao_largada, pneus_iniciais):
+        self.piloto = piloto
+        self.rival_direto = rival_direto
+        self.competidores_grid = competidores_grid
+        self.situacao_largada = situacao_largada
+        self.pneus_iniciais = pneus_iniciais
+
+    def calcular_undercut(self):
+        vantagem_piloto = 2  # Exemplo: vantagem de 2 segundos após o pit stop
+        return self.piloto.tempo_volta - (self.rival_direto.tempo_volta - vantagem_piloto)
+
+    def calcular_overcut(self):
+        tempo_gasto_rivais = sum(competidor.tempo_volta for competidor in self.competidores_grid)
+        return tempo_gasto_rivais - self.piloto.tempo_volta
+
+    def melhor_estrategia(self):
+        if self.situacao_largada == "fundodoGrid" and self.piloto.pneus_atuais == "Duros":
+            return "Pneus Duros e Estratégia Overcut"
+        elif self.situacao_largada == "fundodoGrid":
+            return "Estratégia de Recuperação com Pneus Diferentes"
+        else:
+            if self.calcular_undercut() > self.calcular_overcut():
+                return "Estratégia Undercut"
+            else:
+                return "Estratégia Overcut"
+
+class PitStopManager:
+    def __init__(self, piloto, pneus, estrategia):
+        self.piloto = piloto
+        self.pneus = pneus
+        self.estrategia = estrategia
+
+    def realizar_pit_stop(self):
+        print("Iniciando pit stop para", self.piloto.nome)
+
+        # Etapas do pit stop
+        self.elevar_carro()
+        self.trocar_pneus()
+        self.abastecer()
+        self.baixar_carro()
+        self.finalizar_pit_stop()
+
+        print(f"Pit stop para {self.piloto.nome} concluído com sucesso!")
+
+    def elevar_carro(self):
+        print("Elevando o carro...")
+        time.sleep(1)  # Simulando o tempo de elevação
+
+    def trocar_pneus(self):
+        print("Troca de pneus em andamento...")
+        time.sleep(2)  # Simulando o tempo de troca de pneus
+
+    def abastecer(self):
+        print("Abastecendo o carro...")
+        time.sleep(1)  # Simulando o tempo de abastecimento
+
+    def baixar_carro(self):
+        print("Baixando o carro...")
+        time.sleep(1)  # Simulando o tempo de baixar o carro
+
+    def finalizar_pit_stop(self):
+        print("Pit stop finalizado!")
+
+class DRSManager:
+    def __init__(self, piloto):
+        self.piloto = piloto
+        self.drs_ativo = False
+        self.tempo_ultimo_uso_drs = 0  # Novo atributo para controlar o tempo desde o último uso do DRS
+
+    def ativar_drs(self, ponto_deteccao_drs):
+        if self.pode_usar_drs(ponto_deteccao_drs):
+            print(f"{self.piloto.nome} ativou o DRS na zona de detecção DRS {ponto_deteccao_drs}.")
+            self.drs_ativo = True
+            self.tempo_ultimo_uso_drs = time.time()  # Atualiza o tempo do último uso do DRS
+        else:
+            print(f"{self.piloto.nome} não pode ativar o DRS nesta zona de detecção DRS.")
+
+    def desativar_drs(self):
+        print(f"{self.piloto.nome} desativou o DRS.")
+        self.drs_ativo = False
+
+    def pode_usar_drs(self, ponto_deteccao_drs):
+        # Lógica para verificar se o piloto pode usar o DRS na zona de detecção DRS atual
+        return (
+            self.piloto.pneus_atuais is not None
+            and not self.piloto.drs_ativo
+            and (time.time() - self.tempo_ultimo_uso_drs)) > 1  # Tempo mínimo entre usos do DRS
 
